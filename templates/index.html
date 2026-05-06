@@ -48,11 +48,43 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    var map = L.map('map').setView([37.83, 30.55], 13); // ISUBÜ civarı
+    // Türkiye Sınırları
+    var turkeyBounds = [
+        [36, 26], // Güney Batı (min lat, min lon)
+        [42, 45]  // Kuzey Doğu (max lat, max lon)
+    ];
+
+    var map = L.map('map', {
+        center: [39.0, 35.0], // Türkiye merkezi
+        zoom: 6,
+        minZoom: 5,
+        maxBounds: turkeyBounds,
+        maxBoundsViscosity: 1.0
+    });
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap'
     }).addTo(map);
+
+    // Yasaklı Bölgeler (Örnekler)
+    var forbiddenZones = [
+        { name: "İstanbul Havalimanı", lat: 41.26, lon: 28.74, radius: 9000 },
+        { name: "Ankara Esenboğa Havalimanı", lat: 40.12, lon: 32.99, radius: 9000 },
+        { name: "Antalya Havalimanı", lat: 36.89, lon: 30.80, radius: 9000 },
+        { name: "TBMM / Kamu Binası", lat: 39.91, lon: 32.85, radius: 2000 },
+        { name: "Cumhurbaşkanlığı Külliyesi", lat: 39.93, lon: 32.79, radius: 3000 },
+        { name: "Akkuyu Nükleer Santrali", lat: 36.14, lon: 33.32, radius: 5000 },
+        { name: "Silivri Ceza İnfaz Kurumu", lat: 41.08, lon: 28.16, radius: 3000 }
+    ];
+
+    forbiddenZones.forEach(zone => {
+        L.circle([zone.lat, zone.lon], {
+            color: 'red',
+            fillColor: '#f03',
+            fillOpacity: 0.4,
+            radius: zone.radius
+        }).addTo(map).bindPopup(`<b>🚫 UÇUŞ YASAK BÖLGE</b><br>${zone.name}<br>Burada drone uçurmak yasaktır!`);
+    });
 
     var marker;
 
@@ -77,3 +109,4 @@
 </script>
 </body>
 </html>
+<!-- # [AI Traceability] -->

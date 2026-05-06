@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Adımopter - Drone Operasyon Paneli</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; height: 100vh; }
+        #map { flex: 1; }
+        #sidebar { width: 350px; background: #2c3e50; color: white; padding: 20px; box-shadow: -2px 0 5px rgba(0,0,0,0.3); overflow-y: auto; }
+        .info-card { background: #34495e; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        h2 { color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        label { color: #bdc3c7; font-size: 12px; }
+        .val { font-size: 16px; font-weight: bold; display: block; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+<div id="sidebar">
+    <h2>Adımopter Panel</h2>
+    
+    <div class="info-card">
+        <label>Seçilen Konum (DMS)</label>
+        <span id="dms" class="val">-</span>
+    </div>
+
+    <div class="info-card">
+        <label>Adres</label>
+        <span id="address" class="val">-</span>
+    </div>
+
+    <div class="info-card">
+        <label>Hava Durumu</label>
+        <span id="weather" class="val">-</span>
+    </div>
+
+    <div class="info-card">
+        <label>Yükseklik</label>
+        <span id="elevation" class="val">-</span>
+    </div>
+
+    <div class="info-card" style="border-left: 5px solid #e74c3c;">
+        <label>Uçuş İzin Durumu</label>
+        <span id="nfz" class="val">-</span>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    var map = L.map('map').setView([37.83, 30.55], 13); // ISUBÜ civarı
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    var marker;
+
+    map.on('click', function(e) {
+        if (marker) map.removeLayer(marker);
+        marker = L.marker(e.latlng).addTo(map);
+
+        fetch('/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lat: e.latlng.lat, lon: e.latlng.lng })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('dms').innerText = data.dms;
+            document.getElementById('address').innerText = data.address;
+            document.getElementById('weather').innerText = `Sıcaklık: ${data.sicaklik}, Rüzgar: ${data.ruzgar}`;
+            document.getElementById('elevation').innerText = data.yukseklik;
+            document.getElementById('nfz').innerText = data.nfz_status;
+        });
+    });
+</script>
+</body>
+</html>

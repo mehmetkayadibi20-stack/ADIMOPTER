@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İHA Uçuş İzni Talep Formu - Adımopter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh; color: #e2e8f0;
+        }
+        .top-bar {
+            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 14px 30px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .top-bar h1 { font-size: 20px; font-weight: 700; }
+        .top-bar h1 span { color: #3b82f6; }
+        .top-bar a {
+            color: #94a3b8; text-decoration: none; font-size: 14px;
+            transition: color 0.2s;
+        }
+        .top-bar a:hover { color: #3b82f6; }
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px 40px; }
+        .form-header {
+            text-align: center; margin-bottom: 30px;
+            background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.1));
+            border: 1px solid rgba(59,130,246,0.25); border-radius: 16px; padding: 28px;
+        }
+        .form-header h2 { font-size: 22px; font-weight: 700; color: #f1f5f9; margin-bottom: 6px; }
+        .form-header p { font-size: 13px; color: #94a3b8; }
+        .section {
+            background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(8px);
+            border: 1px solid rgba(71, 85, 105, 0.4); border-radius: 14px;
+            padding: 24px; margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 15px; font-weight: 600; color: #3b82f6;
+            border-bottom: 2px solid rgba(59,130,246,0.3); padding-bottom: 10px; margin-bottom: 18px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .section-title .icon { font-size: 18px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 14px; }
+        .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+        .form-row.four { grid-template-columns: 1fr 1fr 1fr 1fr; }
+        .form-row.full { grid-template-columns: 1fr; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label {
+            font-size: 12px; font-weight: 500; color: #94a3b8;
+            margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(71, 85, 105, 0.5);
+            border-radius: 8px; padding: 10px 14px; color: #e2e8f0;
+            font-family: 'Inter', sans-serif; font-size: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        .form-group select { cursor: pointer; }
+        .form-group textarea { resize: vertical; min-height: 60px; }
+        .radio-group { display: flex; gap: 16px; align-items: center; padding-top: 6px; }
+        .radio-group label {
+            display: flex; align-items: center; gap: 6px;
+            cursor: pointer; font-size: 14px; color: #cbd5e1; text-transform: none; letter-spacing: 0;
+        }
+        .radio-group input[type="radio"] {
+            width: 16px; height: 16px; accent-color: #3b82f6; cursor: pointer;
+        }
+        .coord-label { font-size: 11px; color: #64748b; text-align: center; margin-bottom: 4px; font-weight: 600; }
+        .btn-submit {
+            display: block; width: 100%; padding: 14px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white; border: none; border-radius: 10px;
+            font-size: 16px; font-weight: 600; cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.35);
+        }
+        .btn-submit:active { transform: translateY(0); }
+        .toast {
+            position: fixed; top: 20px; right: 20px; padding: 16px 24px;
+            border-radius: 10px; font-size: 14px; font-weight: 500;
+            transform: translateX(120%); transition: transform 0.4s ease;
+            z-index: 1000;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { background: #065f46; border: 1px solid #10b981; color: #a7f3d0; }
+        .toast.error { background: #7f1d1d; border: 1px solid #ef4444; color: #fca5a5; }
+        @media (max-width: 700px) {
+            .form-row, .form-row.three, .form-row.four { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <h1>✈️ <span>Adımopter</span> | Uçuş İzni Formu</h1>
+    <a href="/">← Haritaya Dön</a>
+</div>
+
+<div class="container">
+    <div class="form-header">
+        <h2>İHA-UÇUŞ İZNİ TALEP FORMU</h2>
+        <p>Sivil Havacılık Genel Müdürlüğü'ne gönderilmek üzere bilgilerinizi eksiksiz doldurunuz.</p>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+        <button type="button" onclick="fillDemoData()" style="background: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6; color: #3b82f6; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;">✨ Demo Verileri Doldur</button>
+    </div>
+
+    <form id="ucusIzniForm">
+        <!-- 1. Başvuru Sahibi -->
+        <div class="section">
+            <div class="section-title"><span class="icon">👤</span> Başvuru Sahibi</div>
+            <div class="form-row full">
+                <div class="form-group">
+                    <label>Başvuru Sahibi</label>
+                    <input type="text" id="basvuru_sahibi" required placeholder="Ad Soyad / Firma">
+                </div>
+            </div>
+            <div class="form-row full">
+                <div class="form-group">
+                    <label>Adresi</label>
+                    <textarea id="adres" required placeholder="Açık adres"></textarea>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Telefon</label>
+                    <input type="tel" id="telefon" required placeholder="05XX XXX XX XX">
+                </div>
+                <div class="form-group">
+                    <label>E-posta</label>
+                    <input type="email" id="eposta" required placeholder="ornek@mail.com">
+                </div>
+            </div>
+            <div class="form-row full">
+                <div class="form-group">
+                    <label>Uçuş Amacı</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="ucus_amaci" value="Ticari" required> Ticari</label>
+                        <label><input type="radio" name="ucus_amaci" value="Ar-Ge"> Ar-Ge</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. İHA ve Pilot Bilgileri -->
+        <div class="section">
+            <div class="section-title"><span class="icon">🛩️</span> İHA ve Pilot Bilgileri</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Sigorta Poliçe No</label>
+                    <input type="text" id="sigorta_police_no" placeholder="Poliçe numarası">
+                </div>
+                <div class="form-group">
+                    <label>İHA Kayıt No / Tescil İşareti</label>
+                    <input type="text" id="iha_kayit_no" required placeholder="Kayıt numarası">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>İHA Tipi</label>
+                    <select id="iha_tipi" required>
+                        <option value="">Seçiniz</option>
+                        <option value="0-499gr">0-499gr arasında</option>
+                        <option value="IHA0">İHA0 [500gr(dâhil)-4kg]</option>
+                        <option value="IHA1">İHA1 [4kg(dâhil)-25kg]</option>
+                        <option value="IHA2">İHA2 [25(dâhil)-150kg]</option>
+                        <option value="IHA3">İHA3 [150kg(dâhil) üzeri]</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Pilot Lisans No / Kayıt No</label>
+                    <input type="text" id="pilot_lisans_no" required placeholder="Lisans numarası">
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Uçuş Zamanı ve Yeri -->
+        <div class="section">
+            <div class="section-title"><span class="icon">📅</span> Uçuş Tarihleri ve Saatleri</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Başlangıç Tarihi</label>
+                    <input type="date" id="ucus_tarihi_baslangic" required>
+                </div>
+                <div class="form-group">
+                    <label>Bitiş Tarihi</label>
+                    <input type="date" id="ucus_tarihi_bitis" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Başlangıç Saati (UTC)</label>
+                    <input type="time" id="ucus_saati_baslangic" required>
+                </div>
+                <div class="form-group">
+                    <label>Bitiş Saati (UTC)</label>
+                    <input type="time" id="ucus_saati_bitis" required>
+                </div>
+            </div>
+            <div class="form-row three">
+                <div class="form-group">
+                    <label>Uçuş İrtifası (Feet MSL)</label>
+                    <input type="number" id="ucus_irtifasi" required placeholder="Feet">
+                </div>
+                <div class="form-group">
+                    <label>İl</label>
+                    <input type="text" id="il" required placeholder="İl">
+                </div>
+                <div class="form-group">
+                    <label>İlçe</label>
+                    <input type="text" id="ilce" required placeholder="İlçe">
+                </div>
+            </div>
+            <div class="form-row full">
+                <div class="form-group">
+                    <label>Bölge Açıklaması</label>
+                    <input type="text" id="bolge" placeholder="Bölge detayı">
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Koordinatlar -->
+        <div class="section">
+            <div class="section-title"><span class="icon">📍</span> Uçuş Yapılacak Bölgenin Koordinatları</div>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: separate; border-spacing: 0 10px; font-size: 13px;">
+                    <thead>
+                        <tr style="color: #3b82f6; text-transform: uppercase; font-size: 11px; font-weight: 700; letter-spacing: 1px;">
+                            <th style="padding: 10px; text-align: left; width: 30%;">Yön</th>
+                            <th style="padding: 10px; text-align: center;">Derece (°)</th>
+                            <th style="padding: 10px; text-align: center;">Dakika (')</th>
+                            <th style="padding: 10px; text-align: center;">Saniye ('')</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Kuzey Satırı -->
+                        <tr>
+                            <td style="padding: 10px; font-weight: 600; color: #f1f5f9; border-left: 3px solid #3b82f6; background: rgba(59, 130, 246, 0.05); border-radius: 8px 0 0 8px;">KUZEY (Enlem)</td>
+                            <td style="padding: 10px; background: rgba(59, 130, 246, 0.05);"><input type="number" id="enlem_derece" style="width: 100%;" placeholder="°"></td>
+                            <td style="padding: 10px; background: rgba(59, 130, 246, 0.05);"><input type="number" id="enlem_dakika" style="width: 100%;" placeholder="'"></td>
+                            <td style="padding: 10px; background: rgba(59, 130, 246, 0.05); border-radius: 0 8px 8px 0;"><input type="text" id="enlem_saniye" style="width: 100%;" placeholder="''"></td>
+                        </tr>
+                        <!-- Doğu Satırı -->
+                        <tr>
+                            <td style="padding: 10px; font-weight: 600; color: #3b82f6; border-left: 3px solid #3b82f6; background: rgba(59, 130, 246, 0.05); border-radius: 8px 0 0 8px;">DOĞU (Boylam)</td>
+                            <td style="padding: 10px; background: rgba(59, 130, 246, 0.05);"><input type="number" id="boylam_derece" style="width: 100%;" placeholder="°"></td>
+                            <td style="padding: 10px; background: rgba(59, 130, 246, 0.05);"><input type="number" id="boylam_dakika" style="width: 100%;" placeholder="'"></td>
+                            <td style="padding: 10px; background: rgba(59, 130, 246, 0.05); border-radius: 0 8px 8px 0;"><input type="text" id="boylam_saniye" style="width: 100%;" placeholder="''"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 5. Alan Tanımı -->
+        <div class="section">
+            <div class="section-title"><span class="icon">🗺️</span> Alan Tanımlaması ve Adresler</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Koordinat Tanımlama Türü</label>
+                    <select id="alan_turu">
+                        <option value="">Seçiniz</option>
+                        <option value="Daire">Daire</option>
+                        <option value="Rota">Rota</option>
+                        <option value="Cokgen">Çokgen</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Yarıçap / Sağı-Solu (NM)</label>
+                    <input type="text" id="alan_yaricap" placeholder="NM">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>İHA Kalkış Adresi (Açık Adres ve Koordinat)</label>
+                    <textarea id="kalkis_adresi" placeholder="Kalkış noktası"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>İHA İniş Adresi (Açık Adres ve Koordinat)</label>
+                    <textarea id="inis_adresi" placeholder="İniş noktası"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Onay -->
+        <div class="section">
+            <div class="section-title"><span class="icon">✍️</span> İşletme Temsilcisi / Pilot Onayı</div>
+            <div class="form-row three">
+                <div class="form-group">
+                    <label>Adı Soyadı</label>
+                    <input type="text" id="onay_ad_soyad" required placeholder="Ad Soyad">
+                </div>
+                <div class="form-group">
+                    <label>Unvanı</label>
+                    <input type="text" id="onay_unvan" placeholder="Unvan">
+                </div>
+                <div class="form-group">
+                    <label>Tarih</label>
+                    <input type="date" id="onay_tarih" required>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit">📤 Formu Gönder</button>
+    </form>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    function showToast(message, type) {
+        const t = document.getElementById('toast');
+        t.textContent = message;
+        t.className = 'toast ' + type + ' show';
+        setTimeout(() => { t.classList.remove('show'); }, 3500);
+    }
+
+    function fillDemoData() {
+        const data = {
+            basvuru_sahibi: "Ahmet Yılmaz",
+            adres: "Atatürk Bulvarı No:123, Çankaya/Ankara",
+            telefon: "0555 123 45 67",
+            eposta: "ahmet.yilmaz@example.com",
+            sigorta_police_no: "POL-99887766",
+            iha_kayit_no: "TR-IHA-00542",
+            iha_tipi: "IHA1",
+            pilot_lisans_no: "PL-2024-089",
+            ucus_tarihi_baslangic: "2024-06-15",
+            ucus_tarihi_bitis: "2024-06-17",
+            ucus_saati_baslangic: "09:00",
+            ucus_saati_bitis: "17:00",
+            ucus_irtifasi: "400",
+            il: "Ankara",
+            ilce: "Çankaya",
+            bolge: "Kızılay Meydanı Çevresi",
+            enlem_derece: "39",
+            enlem_dakika: "55",
+            enlem_saniye: "12.45",
+            boylam_derece: "32",
+            boylam_dakika: "51",
+            boylam_saniye: "08.30",
+            alan_turu: "Daire",
+            alan_yaricap: "2",
+            kalkis_adresi: "Çankaya Parkı (39.92N, 32.85E)",
+            inis_adresi: "Çankaya Parkı (39.92N, 32.85E)",
+            onay_ad_soyad: "Ahmet Yılmaz",
+            onay_unvan: "İHA Pilotu",
+            onay_tarih: new Date().toISOString().split('T')[0]
+        };
+
+        Object.keys(data).forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.value = data[id];
+                el.style.borderColor = "#10b981";
+                el.style.background = "rgba(16, 185, 129, 0.08)";
+            }
+        });
+
+        const radio = document.querySelector('input[name="ucus_amaci"][value="Ticari"]');
+        if (radio) radio.checked = true;
+
+        showToast("✨ Demo verileri başarıyla dolduruldu.", "success");
+    }
+
+    document.getElementById('ucusIzniForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const getVal = id => document.getElementById(id).value;
+        const ucusAmaciEl = document.querySelector('input[name="ucus_amaci"]:checked');
+
+        const formData = {
+            basvuru_sahibi: getVal('basvuru_sahibi'),
+            adres: getVal('adres'),
+            telefon: getVal('telefon'),
+            eposta: getVal('eposta'),
+            ucus_amaci: ucusAmaciEl ? ucusAmaciEl.value : '',
+            sigorta_police_no: getVal('sigorta_police_no'),
+            iha_kayit_no: getVal('iha_kayit_no'),
+            iha_tipi: getVal('iha_tipi'),
+            pilot_lisans_no: getVal('pilot_lisans_no'),
+            ucus_tarihi_baslangic: getVal('ucus_tarihi_baslangic'),
+            ucus_tarihi_bitis: getVal('ucus_tarihi_bitis'),
+            ucus_saati_baslangic: getVal('ucus_saati_baslangic'),
+            ucus_saati_bitis: getVal('ucus_saati_bitis'),
+            ucus_irtifasi: getVal('ucus_irtifasi'),
+            il: getVal('il'),
+            ilce: getVal('ilce'),
+            bolge: getVal('bolge'),
+            enlem_derece: getVal('enlem_derece'),
+            enlem_dakika: getVal('enlem_dakika'),
+            enlem_saniye: getVal('enlem_saniye'),
+            boylam_derece: getVal('boylam_derece'),
+            boylam_dakika: getVal('boylam_dakika'),
+            boylam_saniye: getVal('boylam_saniye'),
+            alan_turu: getVal('alan_turu'),
+            alan_yaricap: getVal('alan_yaricap'),
+            kalkis_adresi: getVal('kalkis_adresi'),
+            inis_adresi: getVal('inis_adresi'),
+            onay_ad_soyad: getVal('onay_ad_soyad'),
+            onay_unvan: getVal('onay_unvan'),
+            onay_tarih: getVal('onay_tarih')
+        };
+
+        fetch('/api/ucus-izni-formu', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showToast('✅ ' + data.message, 'success');
+            } else {
+                showToast('❌ Bir hata oluştu.', 'error');
+            }
+        })
+        .catch(() => showToast('❌ Sunucu bağlantı hatası.', 'error'));
+    });
+</script>
+</body>
+</html>

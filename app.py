@@ -38,6 +38,58 @@ def get_address(lat, lon):
 def index():
     return render_template('index.html')
 
+@app.route('/api/ucus-izni-formu', methods=['POST'])
+def ucus_izni_formu_kaydet():
+    data = request.json
+
+    form_data = {
+        # Başvuru Sahibi
+        "basvuru_sahibi": data.get("basvuru_sahibi", ""),
+        "adres": data.get("adres", ""),
+        "telefon": data.get("telefon", ""),
+        "eposta": data.get("eposta", ""),
+        "ucus_amaci": data.get("ucus_amaci", ""),
+
+        # İHA ve Pilot
+        "sigorta_police_no": data.get("sigorta_police_no", ""),
+        "iha_kayit_no": data.get("iha_kayit_no", ""),
+        "iha_tipi": data.get("iha_tipi", ""),
+        "pilot_lisans_no": data.get("pilot_lisans_no", ""),
+
+        # Uçuş Zamanı
+        "ucus_tarihi_baslangic": data.get("ucus_tarihi_baslangic", ""),
+        "ucus_tarihi_bitis": data.get("ucus_tarihi_bitis", ""),
+        "ucus_saati_baslangic": data.get("ucus_saati_baslangic", ""),
+        "ucus_saati_bitis": data.get("ucus_saati_bitis", ""),
+        "ucus_irtifasi": data.get("ucus_irtifasi", ""),
+
+        # Bölge
+        "il": data.get("il", ""),
+        "ilce": data.get("ilce", ""),
+        "bolge": data.get("bolge", ""),
+
+        # Koordinatlar
+        "enlem_derece": data.get("enlem_derece", ""),
+        "enlem_dakika": data.get("enlem_dakika", ""),
+        "enlem_saniye": data.get("enlem_saniye", ""),
+        "boylam_derece": data.get("boylam_derece", ""),
+        "boylam_dakika": data.get("boylam_dakika", ""),
+        "boylam_saniye": data.get("boylam_saniye", ""),
+
+        # Alan Tanımı
+        "alan_turu": data.get("alan_turu", ""),
+        "alan_yaricap": data.get("alan_yaricap", ""),
+        "kalkis_adresi": data.get("kalkis_adresi", ""),
+        "inis_adresi": data.get("inis_adresi", ""),
+
+        # Onay
+        "onay_ad_soyad": data.get("onay_ad_soyad", ""),
+        "onay_unvan": data.get("onay_unvan", ""),
+        "onay_tarih": data.get("onay_tarih", ""),
+    }
+
+    return jsonify({"status": "success", "message": "Form başarıyla kaydedildi.", "data": form_data})
+
 @app.route('/api/analyze', methods=['POST'])
 def analyze_location():
     data = request.json

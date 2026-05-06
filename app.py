@@ -48,20 +48,40 @@ def analyze_location():
     lon_dms = convert_to_dms(lon, 'lon')
     address = get_address(lat, lon)
 
-    # Hava Durumu
-    weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={WEATHER_API_KEY}&units=metric"
-    w_res = requests.get(weather_url)
-    
-    # Yükseklik (Elevation)
-    elev_url = f"https://api.open-elevation.com/api/v1/lookup?locations={lat},{lon}"
-    e_res = requests.get(elev_url)
+    # Hava Durumu (Open-Meteo API'sine geçirildi - API Key gerektirmez)
+    try:
+        weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
+        w_res = requests.get(weather_url, timeout=5)
+        if w_res.status_code == 200:
+            w_data = w_res.json().get('current_weather', {})
+            sicaklik = f"{w_data.get('temperature', 'Hata')} °C"
+            wind_kmh = w_data.get('windspeed', 0)
+            ruzgar = f"{round(wind_kmh / 3.6, 2)} m/s"
+        else:
+            sicaklik = "Hata"
+            ruzgar = "Hata"
+    except Exception:
+        sicaklik = "Bağlantı Hatası"
+        ruzgar = "Bağlantı Hatası"
+
+    # Yükseklik (Elevation) - Open-Meteo Elevation API
+    try:
+        elev_url = f"https://api.open-meteo.com/v1/elevation?latitude={lat}&longitude={lon}"
+        e_res = requests.get(elev_url, timeout=5)
+        if e_res.status_code == 200:
+            elev_data = e_res.json().get('elevation', [])
+            yukseklik = f"{elev_data[0]} m" if len(elev_data) > 0 else "Hata"
+        else:
+            yukseklik = "Hata"
+    except Exception:
+        yukseklik = "Bağlantı Hatası"
 
     response_data = {
         "dms": f"{lat_dms}, {lon_dms}",
         "address": address,
-        "sicaklik": f"{w_res.json()['main']['temp']} °C" if w_res.status_code == 200 else "Hata",
-        "ruzgar": f"{w_res.json()['wind']['speed']} m/s" if w_res.status_code == 200 else "Hata",
-        "yukseklik": f"{e_res.json()['results'][0]['elevation']} m" if e_res.status_code == 200 else "Hata",
+        "sicaklik": sicaklik,
+        "ruzgar": ruzgar,
+        "yukseklik": yukseklik,
         "nfz_status": "Manuel SHGM Kontrolü Gereklidir."
     }
 
